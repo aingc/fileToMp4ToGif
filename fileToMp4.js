@@ -2,24 +2,38 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
 ffmpeg.setFfmpegPath(ffmpegPath);
 
-/*ffmpeg('./bunny.webm')
-  .format('mp4')
-  .videoCodec('mpeg4')
+let cliArgs = process.argv.slice(2);
+let fileName = cliArgs[1].match(/(.+?)(\.[^.]*$|$)/)[1];
 
-  .on('end', () => {
-    console.log('Converted bunny.webm to bunny.mp4');
-  })
-  .on('error', err => {
-    console.log('Failed to convert webm to mp4');
-  })
-  .save('bunny.mp4');*/
-
-  ffmpeg('./bunny.mp4')
-  .size('320x240')
-  .on('end', () => {
-    console.log('Converted bunny.mp4 to test.gif');
-  })
-  .on('error', err => {
-    console.log('Failed to convert mp4 to gif');
-  })
-  .save('test.gif');
+if (cliArgs.length > 2) {
+  console.log('Expected 2 CLI arguments: "mp4||gif PATH_TO_FILE"');
+} else {
+  switch(cliArgs[0]) {
+    case 'mp4':
+      ffmpeg(cliArgs[1])
+        .format('mp4')
+        .videoCodec('mpeg4')
+    
+        .on('end', () => {
+          console.log(`Converted ${cliArgs[1]} to ${fileName}.mp4`);
+        })
+        .on('error', err => {
+          console.log(`Failed to convert ${cliArgs[1]} to mp4`);
+        })
+        .save(`${fileName}.mp4`);
+      break;
+    case 'gif':
+      ffmpeg(cliArgs[1])
+        .size('320x240')
+        .on('end', () => {
+          console.log(`Converted ${cliArgs[1]} to ${fileName}.gif`);
+        })
+        .on('error', err => {
+          console.log(`Failed to convert ${cliArgs[1]} to gif`);
+        })
+        .save(`${fileName}.gif`);
+      break;
+    default:
+      console.log(`Expected first CLI arguement to be: "mp4||gif" but got "${cliArgs[0]}" instead`)
+  }
+}
